@@ -13,6 +13,9 @@ namespace SnakeConsole
         {
             Game game = new Game();
             game.Run();
+
+            //Delay
+            Console.ReadLine();
         }
     }
 }

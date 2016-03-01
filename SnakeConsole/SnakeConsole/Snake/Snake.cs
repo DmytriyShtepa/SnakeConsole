@@ -12,10 +12,9 @@ namespace SnakeConsole
         public const ConsoleKey BUTTON_LEFT = ConsoleKey.LeftArrow;
         public const ConsoleKey BUTTON_RIGHT = ConsoleKey.RightArrow;
 
-        List<SnakePart> _snake = new List<SnakePart>();
-
-        List<Actions> actions;
-        List<Actions> removeList = new List<Actions>();
+        List<SnakePart> _snake;
+        List<Actions> _actions;
+        List<Actions> _removeList;
 
         public int Size
         {
@@ -27,8 +26,11 @@ namespace SnakeConsole
 
         public Snake ()
         {
-            actions = new List<Actions>();
-            for(int i = 0; i < _size; ++i )
+            _snake = new List<SnakePart>();
+            _actions = new List<Actions>();
+            _removeList = new List<Actions>();
+
+            for (int i = 0; i < _size; ++i )
             {
                 _snake.Add( new SnakePart(new Position(_size - i + 1, 2), Direction.Right ));
             }
@@ -42,9 +44,9 @@ namespace SnakeConsole
                 if ( isHead( part ) )
                     Console.Write( "@" );
                 else if ( isTail( part ) )
-                    Console.Write( "%" );
+                    Console.Write( "&" );
                 else
-                    Console.Write( "#" );
+                    Console.Write( "%" );
             }
         }
 
@@ -58,13 +60,13 @@ namespace SnakeConsole
             return _snake.Last();
         }
 
-        public void Move ()
+        public void Move ( Game.FoodEatHandler foodEat, Position pos )
         {
             foreach( SnakePart node in _snake )
             {
-                if(actions.Count != 0 )
+                if(_actions.Count != 0 )
                 {
-                    foreach ( Actions action in actions )
+                    foreach ( Actions action in _actions )
                     {
                         if ( node.Position.Equals( action.position ) )
                         {
@@ -72,7 +74,7 @@ namespace SnakeConsole
                                 node.Direction = action.direction;
 
                             if ( isTail( node ) )
-                                removeList.Add( action );
+                                _removeList.Add( action );
                         }
                     }
                 }
@@ -90,11 +92,14 @@ namespace SnakeConsole
                 }
             }
 
-            if ( removeList.Count != 0 )
+            if ( pos.Equals( getHead().Position ) )
+                foodEat.Invoke( this );
+
+            if ( _removeList.Count != 0 )
             {
-                foreach ( Actions remove in removeList )
+                foreach ( Actions remove in _removeList )
                 {
-                    actions.Remove( remove );
+                    _actions.Remove( remove );
                 }
             }
 
@@ -104,7 +109,7 @@ namespace SnakeConsole
 
         public void addAction( Position pos, Direction direction )
         {
-            actions.Add( new Actions( pos, direction ) );
+            _actions.Add( new Actions( pos, direction ) );
         }
 
         public bool isTail( SnakePart part )
@@ -150,7 +155,7 @@ namespace SnakeConsole
             SnakePart head = getHead();
             for(int i = 1; i < _snake.Count; i++ )
             {
-                if ( _snake[i].Position.Equals(head.Position) )
+                if ( head.Position.Equals(_snake[i].Position) ) 
                     return true;
             }
 

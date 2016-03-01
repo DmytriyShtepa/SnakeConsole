@@ -58,5 +58,12 @@
         {
             _position.Y--;         
         }
+
+        public bool Equals ( SnakePart part )
+        {
+            if ( this.Position.Equals( part.Position ) && this.Direction == part.Direction )
+                return true;
+            return false;
+        }
     }
 }

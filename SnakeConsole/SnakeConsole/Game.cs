@@ -38,7 +38,7 @@ namespace SnakeConsole
 
         public void Run ()
         {
-            keyPressEvent += OnKeyPress;
+            keyPressEvent += onKeyPress;
             foodEatEvent += onFoodEat;
             ConsoleKeyInfo cki = new ConsoleKeyInfo();
 
@@ -49,8 +49,8 @@ namespace SnakeConsole
                     while ( Console.KeyAvailable == false )
                     {
                         Print();
-                        snake.Move();
-                        foodEatEvent.Invoke( snake );
+                        snake.Move( foodEatEvent, food.Position );
+                        //foodEatEvent.Invoke( snake );
                         Thread.Sleep( 150 );
                     }
                     cki = Console.ReadKey( true );
@@ -67,15 +67,12 @@ namespace SnakeConsole
 
         private void onFoodEat ( Snake snake )
         {
-            if ( food.position.Equals( snake.getHead().Position ) )
-            {
-                score += 10;
-                food = new Food();
-                snake.Grow();
-            }
+            score += 10;
+            food = new Food();
+            snake.Grow();
         }
 
-        private void OnKeyPress ( ConsoleKeyInfo key, SnakePart part )
+        private void onKeyPress ( ConsoleKeyInfo key, SnakePart part )
         {
             switch( key.Key )
             {

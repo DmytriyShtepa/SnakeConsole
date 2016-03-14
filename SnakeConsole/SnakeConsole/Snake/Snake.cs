@@ -16,6 +16,8 @@ namespace SnakeConsole
         List<Actions> _actions;
         List<Actions> _removeList;
 
+        Game.FoodEatHandler foodEatHandler;
+
         public int Size
         {
             get
@@ -24,7 +26,7 @@ namespace SnakeConsole
             }
         }
 
-        public Snake ()
+        public Snake (Game.FoodEatHandler eatHandler)
         {
             _snake = new List<SnakePart>();
             _actions = new List<Actions>();
@@ -34,20 +36,19 @@ namespace SnakeConsole
             {
                 _snake.Add( new SnakePart(new Position(_size - i + 1, 2), Direction.Right ));
             }
+
+            foodEatHandler = eatHandler;
         }
 
         public void DrawSnake ()
-        {
+        {            
+            Console.BackgroundColor = ConsoleColor.DarkGreen;
             foreach ( SnakePart part in _snake )
             {
                 Console.SetCursorPosition( part.Position.X, part.Position.Y);
-                if ( isHead( part ) )
-                    Console.Write( "@" );
-                else if ( isTail( part ) )
-                    Console.Write( "&" );
-                else
-                    Console.Write( "%" );
+                Console.Write( "\u2580" );
             }
+            Console.ResetColor();           
         }
 
         public SnakePart getHead ()
@@ -60,40 +61,48 @@ namespace SnakeConsole
             return _snake.Last();
         }
 
-        public void Move ( Game.FoodEatHandler foodEat, Position pos )
+        public void Move ( Position foodPosition )
         {
-            foreach( SnakePart node in _snake )
+            foreach( SnakePart snakeSegment in _snake )
             {
                 if(_actions.Count != 0 )
                 {
                     foreach ( Actions action in _actions )
                     {
-                        if ( node.Position.Equals( action.position ) )
+                        if ( snakeSegment.Position.Equals( action.position ) )
                         {
-                            if ( node.Direction != action.direction )
-                                node.Direction = action.direction;
+                            if ( snakeSegment.Direction != action.direction )
+                                snakeSegment.Direction = action.direction;
 
-                            if ( isTail( node ) )
-                                _removeList.Add( action );
+                            if ( isTail( snakeSegment ) )
+                                _removeList.Add( action );                         
                         }
                     }
                 }
-           
-                switch ( node.Direction )
+
+                if ( isTail( snakeSegment ) )
                 {
-                    case Direction.Right: node.MoveRight();
+                    Console.SetCursorPosition( snakeSegment.Position.X, snakeSegment.Position.Y );
+                    Console.Write( ' ' );
+                }
+
+                switch ( snakeSegment.Direction )
+                {
+                    case Direction.Right: snakeSegment.MoveRight();
                         break;
-                    case Direction.Left: node.MoveLeft();
+                    case Direction.Left: snakeSegment.MoveLeft();
                         break;
-                    case Direction.Up: node.MoveUp();
+                    case Direction.Up: snakeSegment.MoveUp();
                         break;
-                    case Direction.Down: node.MoveDown();
+                    case Direction.Down: snakeSegment.MoveDown();
                         break;
                 }
             }
 
-            if ( pos.Equals( getHead().Position ) )
-                foodEat.Invoke( this );
+            DrawSnake();
+
+            if ( foodPosition.Equals( getHead().Position ) )
+                foodEatHandler.Invoke( this );
 
             if ( _removeList.Count != 0 )
             {

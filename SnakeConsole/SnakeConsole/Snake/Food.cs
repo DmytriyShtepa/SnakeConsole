@@ -23,10 +23,8 @@ namespace SnakeConsole
 
         public void DrawFood ()
         {
-            Console.BackgroundColor = ConsoleColor.DarkRed;
             Console.SetCursorPosition( _position.X, _position.Y );
-            Console.Write( '\u2302' );
-            Console.ResetColor();
+            Console.Write("*");
         }
     }
 }

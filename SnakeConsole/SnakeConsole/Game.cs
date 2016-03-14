@@ -15,32 +15,25 @@ namespace SnakeConsole
         public const int Size_H = 20;
         int score = 0;
 
-        Snake snake;
-        Food food;
+        Snake snake = new Snake();
+        Food food = new Food();
 
-        void _DrawBoard()
+        public void Print ()
         {
-            Console.WriteLine( "\tScore: {0}, Size: {1}", score, snake.Size );
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write( "\u2554" );
-            Console.Write( new string( '\u2550', Size_W ) );
-            Console.WriteLine( "\u2557" );
+            Console.Clear();
 
+            Console.WriteLine("\tScore: {0}, Size: {1}", score, snake.Size);
+            Console.WriteLine( new string( '-', Size_W + 2 ) );
             for ( int i = 0; i < Size_H; i++ )
             {
-                Console.Write( "\u2551" );
+                Console.Write( "|" );
                 Console.Write( new string( ' ', Size_W ) );
-                Console.WriteLine( "\u2551" );
+                Console.WriteLine( "|" );
             }
-            Console.Write( "\u255A" );
-            Console.Write( new string( '\u2550', Size_W ) );
-            Console.Write( "\u255D" );
-        }
+            Console.WriteLine( new string( '-', Size_W + 2 ) );
 
-        void _UpdateScore ()
-        {
-            Console.SetCursorPosition( 0, 0 );
-            Console.Write( "\tScore: {0}, Size: {1}", score, snake.Size );
+            snake.DrawSnake();
+            food.DrawFood();
         }
 
         public void Run ()
@@ -49,24 +42,16 @@ namespace SnakeConsole
             foodEatEvent += onFoodEat;
             ConsoleKeyInfo cki = new ConsoleKeyInfo();
 
-            snake = new Snake( foodEatEvent );
-            food = new Food();
-
-            Console.WindowHeight = Size_H + 5;
-            Console.WindowWidth = Size_W + 2;
-            Console.CursorVisible = false;
-            Console.Title = "Snake ^_^";
-
-            _DrawBoard();
             try
             {
                 do
                 {
                     while ( Console.KeyAvailable == false )
                     {
-                        food.DrawFood();
-                        snake.Move( food.Position );
-                        Thread.Sleep( 100 );
+                        Print();
+                        snake.Move( foodEatEvent, food.Position );
+                        //foodEatEvent.Invoke( snake );
+                        Thread.Sleep( 150 );
                     }
                     cki = Console.ReadKey( true );
                     keyPressEvent.Invoke( cki, snake.getHead() );
@@ -85,7 +70,6 @@ namespace SnakeConsole
             score += 10;
             food = new Food();
             snake.Grow();
-            _UpdateScore();
         }
 
         private void onKeyPress ( ConsoleKeyInfo key, SnakePart part )
